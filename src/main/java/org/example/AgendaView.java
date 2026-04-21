@@ -1,8 +1,5 @@
 package org.example;
 
-import org.example.Recordatorio;
-import org.example.Usuario;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -36,24 +33,9 @@ public class AgendaView extends JFrame {
     }
 
     private void inicializarUI() {
-        // Panel superior con gradiente
-        JPanel panelSuperior = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2d = (Graphics2D) g;
-                g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-                
-                // Gradiente de fondo
-                Color colorInicio = new Color(41, 128, 185);
-                Color colorFinal = new Color(52, 152, 219);
-                
-                GradientPaint gp = new GradientPaint(0, 0, colorInicio, getWidth(), getHeight(), colorFinal);
-                g2d.setPaint(gp);
-                g2d.fillRect(0, 0, getWidth(), getHeight());
-                
-                super.paintComponent(g);
-            }
-        };
+        // Panel superior con color azul sólido
+        JPanel panelSuperior = new JPanel();
+        panelSuperior.setBackground(new Color(41, 128, 185));
         panelSuperior.setLayout(new BorderLayout(20, 0));
         panelSuperior.setBorder(new EmptyBorder(20, 30, 20, 30));
         panelSuperior.setPreferredSize(new Dimension(0, 120));
@@ -111,7 +93,7 @@ public class AgendaView extends JFrame {
         panelCentral.setBorder(new EmptyBorder(20, 30, 20, 30));
         panelCentral.setLayout(new BorderLayout());
 
-        // Contenedor del calendario con sombra
+        // Contenedor del calendario
         panelCalendario = new JPanel();
         panelCalendario.setBackground(Color.WHITE);
         panelCalendario.setBorder(new EmptyBorder(20, 20, 20, 20));
@@ -148,43 +130,17 @@ public class AgendaView extends JFrame {
     }
 
     private JButton crearBoton(String texto, Color color) {
-        JButton btn = new JButton(texto) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2d = (Graphics2D) g;
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                
-                if (getModel().isArmed()) {
-                    g2d.setColor(darkenColor(color, 0.85f));
-                } else if (getModel().isRollover()) {
-                    g2d.setColor(darkenColor(color, 0.95f));
-                } else {
-                    g2d.setColor(color);
-                }
-                
-                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
-                
-                super.paintComponent(g);
-            }
-        };
-        
+        JButton btn = new JButton(texto);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btn.setForeground(Color.WHITE);
         btn.setPreferredSize(new Dimension(180, 40));
+        btn.setBackground(color);
         btn.setBorderPainted(false);
         btn.setFocusPainted(false);
-        btn.setContentAreaFilled(false);
+        btn.setOpaque(true);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
         return btn;
-    }
-
-    private Color darkenColor(Color color, float factor) {
-        return new Color(
-            (int)(color.getRed() * factor),
-            (int)(color.getGreen() * factor),
-            (int)(color.getBlue() * factor)
-        );
     }
 
     public void dibujarCalendario(YearMonth mesActual, Map<LocalDate, List<Recordatorio>> recordatorios) {
@@ -217,35 +173,16 @@ public class AgendaView extends JFrame {
 
         for (int dia = 1; dia <= mesActual.lengthOfMonth(); dia++) {
             LocalDate fecha = mesActual.atDay(dia);
-            JButton btnDia = new JButton(String.valueOf(dia)) {
-                @Override
-                protected void paintComponent(Graphics g) {
-                    Graphics2D g2d = (Graphics2D) g;
-                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                    if (recordatorios.containsKey(fecha) && !recordatorios.get(fecha).isEmpty()) {
-                        GradientPaint gp = new GradientPaint(0, 0, new Color(52, 152, 219), getWidth(), getHeight(), new Color(41, 128, 185));
-                        g2d.setPaint(gp);
-                    } else {
-                        g2d.setColor(Color.WHITE);
-                    }
-
-                    g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
-                    g2d.setColor(new Color(200, 210, 220));
-                    g2d.setStroke(new BasicStroke(1));
-                    g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8);
-
-                    super.paintComponent(g);
-                }
-            };
+            JButton btnDia = new JButton(String.valueOf(dia));
 
             btnDia.setFont(new Font("Segoe UI", Font.BOLD, 14));
             btnDia.setPreferredSize(new Dimension(0, 70));
-            btnDia.setBorderPainted(false);
+            btnDia.setBorderPainted(true);
             btnDia.setFocusPainted(false);
-            btnDia.setContentAreaFilled(false);
+            btnDia.setOpaque(true);
 
             if (recordatorios.containsKey(fecha) && !recordatorios.get(fecha).isEmpty()) {
+                btnDia.setBackground(new Color(52, 152, 219));
                 btnDia.setForeground(Color.WHITE);
 
                 StringBuilder tooltipHTML = new StringBuilder("<html><b>📋 Tareas del día:</b><br>");
@@ -259,6 +196,7 @@ public class AgendaView extends JFrame {
 
                 btnDia.setToolTipText(tooltipHTML.toString());
             } else {
+                btnDia.setBackground(Color.WHITE);
                 btnDia.setForeground(new Color(80, 80, 80));
             }
 

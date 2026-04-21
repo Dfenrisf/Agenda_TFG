@@ -1,11 +1,8 @@
 package org.example;
 
-import org.example.DatabaseManager;
-import org.example.Recordatorio;
-import org.example.Usuario;
-
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,15 +47,10 @@ public class AgendaModel {
     }
 
     /**
-     * Usuarios y admins pueden eliminar recordatorios
-     * Pero los usuarios solo pueden eliminar los suyos
+     * TODOS pueden eliminar CUALQUIER recordatorio
+     * (solo admin puede crear, pero cualquiera puede eliminar)
      */
     public boolean eliminarRecordatorio(Recordatorio r) {
-        // Si es usuario normal, solo puede eliminar los suyos
-        if (!usuarioActual.isAdmin() && r.getUsuarioId() != usuarioActual.getId()) {
-            return false;
-        }
-
         if (db.eliminarRecordatorio(r.getId(), usuarioActual.getId())) {
             cargarRecordatorios(); // Recargar desde BD
             return true;

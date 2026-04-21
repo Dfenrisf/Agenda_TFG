@@ -1,10 +1,5 @@
 package org.example;
 
-import org.example.AgendaModel;
-import org.example.AgendaView;
-import org.example.DatabaseManager;
-import org.example.Recordatorio;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -112,6 +107,7 @@ public class AgendaController {
 
     /**
      * Abre diálogo para eliminar recordatorio
+     * TODOS pueden eliminar TODAS las tareas (admin y usuarios)
      */
     private void abrirDialogoEliminar() {
         if (modelo.getRecordatorios().isEmpty()) {
@@ -131,18 +127,15 @@ public class AgendaController {
 
         JComboBox<String> combo = new JComboBox<>();
 
-        // Obtener todos los recordatorios disponibles
+        // Obtener TODOS los recordatorios (cualquiera puede eliminar cualquiera)
         List<Recordatorio> recordatoriosList = new ArrayList<>();
         for (List<Recordatorio> listaDia : modelo.getRecordatorios().values()) {
             for (Recordatorio r : listaDia) {
                 recordatoriosList.add(r);
                 
                 String icono = r.getUsuarioId() == modelo.getUsuarioActual().getId() ? "👤" : "👑";
-                String canEliminar = (modelo.getUsuarioActual().isAdmin() || r.getUsuarioId() == modelo.getUsuarioActual().getId()) 
-                                     ? "" : " (No puedes eliminar)";
-                
                 String display = icono + " " + r.getFecha() + " | " + r.getHoraInicio() + 
-                                "-" + r.getHoraFin() + " | " + r.getDescripcion() + canEliminar;
+                                "-" + r.getHoraFin() + " | " + r.getDescripcion();
                 combo.addItem(display);
             }
         }
@@ -157,11 +150,6 @@ public class AgendaController {
             int selectedIndex = combo.getSelectedIndex();
             if (selectedIndex >= 0 && selectedIndex < recordatoriosList.size()) {
                 Recordatorio seleccionado = recordatoriosList.get(selectedIndex);
-                
-                if (!modelo.getUsuarioActual().isAdmin() && seleccionado.getUsuarioId() != modelo.getUsuarioActual().getId()) {
-                    vista.mostrarMensaje("❌ No puedes eliminar recordatorios de otros usuarios");
-                    return;
-                }
                 
                 if (modelo.eliminarRecordatorio(seleccionado)) {
                     vista.mostrarMensaje("✅ Recordatorio eliminado correctamente");
@@ -261,11 +249,6 @@ public class AgendaController {
             }
 
             for (Recordatorio r : recordatorios.get(fecha)) {
-                // Si es usuario normal, solo mostrar los suyos
-                if (!modelo.getUsuarioActual().isAdmin() && r.getUsuarioId() != modelo.getUsuarioActual().getId()) {
-                    // Los usuarios normales ven TODAS las tareas pero las de admin tienen otro icono
-                }
-
                 String creador = r.getUsuarioId() == modelo.getUsuarioActual().getId() ? 
                                 "👤 Tú" : "👑 Admin";
 
